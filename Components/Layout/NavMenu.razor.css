@@ -1,0 +1,33 @@
+/* wwwroot/css/NavMenu.css */
+
+.nav-menu {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .nav-links {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links li {
+    margin-right: 30px;
+  }
+  
+  .nav-links a {
+    color: #FFD700; /* Enlaces de color amarillo */
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px;
+    transition: color 0.3s ease, background-color 0.3s ease;
+    border-radius: 5px;
+  }
+  
+  .nav-links a:hover {
+    color: #003366; /* Azul oscuro cuando pasa el ratón */
+    background-color: #FFD700; /* Fondo amarillo al pasar el ratón */
+  }
+  

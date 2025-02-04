@@ -1,0 +1,218 @@
+﻿body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between; /* Alinea los botones a los extremos */
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.7); /* Fondo transparente */
+    border-bottom: 2px solid #ddd; /* Borde visible en la parte inferior */
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+    .navbar a {
+        text-decoration: none;
+        color: #495057;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .navbar a:hover {
+            background-color: #ffc107;
+            color: white;
+        }
+
+    .navbar .left {
+        display: flex;
+    }
+
+    .navbar .right {
+        display: flex;
+    }
+
+    .navbar a.active {
+        background-color: #ffc107;
+        color: white;
+        border-radius: 5px;
+    }
+
+.booking-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    color: #495057;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+    .tab-button.active {
+        background-color: #ffc107;
+        color: white;
+        border: 1px solid #ffc107;
+    }
+
+.form-row-horizontal {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    position: relative;
+    min-width: 120px;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #003399;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+    .search-button:hover {
+        background-color: #002366;
+    }
+
+.icon {
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
+}
+
+.arrow-button {
+    padding: 10px;
+    background-color: #ffc107;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+    .arrow-button:hover {
+        background-color: #e0a800;
+    }
+
+.passenger-container {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #f9f9f9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 5px;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+#toggle-passengers:checked + .passenger-container {
+    display: block;
+    opacity: 1;
+}
+
+.text-box-label {
+    display: inline-block;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+    text-align: left;
+    font-family: 'Arial', sans-serif;
+}
+
+#return {
+    width: 100%;
+    display: block;
+}
+
+.text-box-label:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-box-label:active {
+    background-color: #e0e0e0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}

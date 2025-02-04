@@ -1,0 +1,613 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using Supabase.Postgrest
+@using Supabase.Postgrest.Models
+@using System.Text.Json;
+
+<SupabaseClient.Options.Logger = new ConsoleLogger() />
+
+<PageTitle>Home</PageTitle>
+<link href="css/estilos.css" rel="stylesheet" />
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .search-results {
+        padding: 20px;
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f7fc;
+    }
+
+    h3 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-radius: 8px;
+        border-collapse: collapse;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+    }
+
+        .styled-table th, .styled-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .styled-table th {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+        }
+
+        .styled-table td {
+            font-size: 14px;
+            color: #555;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .styled-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .styled-table .price {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .booking-container {
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        max-width: 100%;
+        margin: 0 auto;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row-horizontal {
+        display: flex;
+        align-items: center; /* Centra los items verticalmente */
+        gap: 15px; /* Espacio entre cada campo */
+        flex-wrap: nowrap; /* Evita que los elementos se acomoden en varias líneas */
+    }
+
+    select, input[type="text"], button {
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        width: auto; /* Ajusta el tamaño de los campos para que no se estiren */
+    }
+
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: #fff;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+    h3 {
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #333;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+        ul li {
+            padding: 10px;
+            background-color: #f1f1f1;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+            ul li:nth-child(even) {
+                background-color: #e9e9e9;
+            }
+
+            ul li span {
+                font-weight: bold;
+            }
+
+            ul li .price {
+                color: royalblue;
+            }
+
+    p {
+        font-size: 1em;
+        color: #333;
+        margin-top: 10px;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #f8f9fa;
+    }
+
+    .left, .right {
+        display: flex;
+        align-items: center;
+    }
+
+        .left img.logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .left a, .right a {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #000;
+        }
+
+            .left a.active {
+                font-weight: bold;
+            }
+
+        .right a {
+            margin-left: 20px;
+        }
+
+    .body-image {
+        display: block;
+        margin: 20px auto;
+        width: 1350px;
+        height: 300px;
+    }
+
+    .content {
+        flex: 1;
+        padding: 20px;
+    }
+
+
+    footer {
+        background: #003366; /* Color azul oscuro */
+        color: white;
+        padding: 20px 10px;
+    }
+
+    .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .footer-column {
+        flex: 1;
+        min-width: 200px;
+    }
+
+        .footer-column h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding: 0;
+        }
+
+            .footer-column ul li {
+                margin-bottom: 10px;
+            }
+
+                .footer-column ul li a {
+                    color: #ccc; /* Gris claro para los enlaces */
+                    text-decoration: none;
+                    font-size: 14px;
+                }
+
+                    .footer-column ul li a:hover {
+                        color: #f1f1f1; /* Blanco al pasar el mouse */
+                        text-decoration: underline;
+                    }
+
+    .footer-logos {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+        .footer-logos img {
+            width: 50px;
+            height: auto;
+        }
+
+    .footer-social {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+        .footer-social a {
+            color: white;
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+    .footer-bottom {
+        text-align: center;
+        margin-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 10px;
+        font-size: 14px;
+    }
+</style>
+
+<body>
+    <!-- Barra de navegación -->
+    <div class="navbar">
+        <div class="left">
+            <img src="images/STIKER.png" alt="Logo" class="logo" />
+            <a href="/" class="active">Inicio</a>
+        </div>
+        <div class="right">
+            <a href="/acerca">Acerca de</a>
+            <a href="/contacto">Contacto</a>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="content">
+        <img src="images/CIUDAD.jpg" alt="Otra Imagen" class="body-image" />
+    </div>
+</body>
+<div class="booking-container">
+    <div class="form-row-horizontal">
+        <select @onchange="ActualizarIdOrigen" placeholder="Origen">
+            <option value="" disabled selected>Origen</option>
+            @foreach (var aeropuerto in aeropuertos)
+            {
+                <option value="@aeropuerto">@aeropuerto</option>
+            }
+        </select>
+
+        <select @onchange="ActualizarIdDestino" placeholder="Destino">
+            <option value="" disabled selected>Destino</option>
+            @foreach (var aeropuerto in aeropuertos)
+            {
+                <option value="@aeropuerto">@aeropuerto</option>
+            }
+        </select>
+
+        <input type="text" @bind="p_fechasalida" placeholder="Fecha Salida" />
+        <input type="text" @bind="p_fechallegada" placeholder="Fecha Llegada" />
+
+        <button @onclick="BuscarVuelos"> Buscar vuelos</button>
+       
+    </div>
+    <div class="search-results">
+        <h3>Resultados de la búsqueda:</h3>
+        @if (vuelos.Any())
+        {
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Vuelo</th>
+                        <th>Origen → Destino</th>
+                        <th>Fechas</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var vuelo in vuelos)
+                    {
+                        <tr>
+                            <td>@vuelo.idvuelo</td>
+                            <td>@vuelo.idaeropuertoorigen → @vuelo.idaeropuertodestino</td>
+                            <td>@vuelo.fechasalida → @vuelo.fechallegada</td>
+                            <td class="price">$@vuelo.precio</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+    </div>
+
+
+<footer>
+    <div class="footer-container">
+        <!-- Acerca de BoA -->
+        <div class="footer-column">
+            <h3>Acerca de BoA</h3>
+            <ul>
+                <li><a href="https://sms.obairlines.bo/BoaInstitucional/" target="_blank">BoA Institucional</a></li>
+                <li><a href="https://www.boa.bo/Contenido/responsabilidad-social-jlxz79mq" target="_blank">Responsabilidad Social</a></li>
+                <li><a href="#">Perfil Corporativo</a></li>
+                <li><a href="#">Avisos Importantes</a></li>
+                <li><a href="#">Somos IOSA</a></li>
+                <li><a href="#">Convocatorias</a></li>
+            </ul>
+        </div>
+
+        <!-- Información Legal -->
+        <div class="footer-column">
+            <h3>Información Legal</h3>
+            <ul>
+                <li><a href="https://www.boa.bo/Contenido/nuestras-tarifas-ultimo-ys1bksq2" target="_blank">Nuestras Tarifas</a></li>
+                <li><a href="https://www.boa.bo/Contenido/contrato-de-transporte-e23qbsmh" target="_blank">Contrato de Transporte</a></li>
+                <li><a href="#">Derechos y Responsabilidades</a></li>
+                <li><a href="#">Términos y Condiciones</a></li>
+                <li><a href="#">Políticas de Privacidad</a></li>
+                <li><a href="#">Políticas de Cookies</a></li>
+            </ul>
+        </div>
+
+        <!-- Contáctanos -->
+        <div class="footer-column">
+            <h3>Contáctanos</h3>
+            <ul>
+                <li><a href="https://www.boa.bo/Contenido/contact-center-ecl118y9" target="_blank">Contact Center</a></li>
+                <li><a href="https://www.boa.bo/Contenido/nuestras-oficinas-u611p6av" target="_blank">Nuestras Oficinas</a></li>
+            </ul>
+        </div>
+
+        <!-- Enlaces Rápidos -->
+        <div class="footer-column">
+            <h3>Enlaces Rápidos</h3>
+            <ul>
+                <li><a href="#">CIEAC</a></li>
+                <li><a href="#">Mapa de Sitio</a></li>
+                <li><a href="#">BoACargo</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Logos -->
+    <div class="footer-logos">
+        <img src="images/IATA.png" alt="IATA Logo">
+        <img src="images/VERISING.png" alt="Verisign Logo">
+        <img src="images/CANDADO.png" alt="Candado Logo">
+    </div>
+
+    <!-- Redes Sociales -->
+    <div class="footer-social">
+        <!-- Facebook -->
+        <a href="#" target="_blank">
+            <img src="images/FACEBOOK.png" alt="Facebook" style="width: 24px; height: 24px;" />
+        </a>
+
+        <!-- Instagram -->
+        <a href="#" target="_blank">
+            <img src="images/INSTAGRAN.png" alt="Instagram" style="width: 24px; height: 24px;" />
+        </a>
+
+        <!-- YouTube -->
+        <a href="#" target="_blank">
+            <img src="images/YOUTUBE.png" alt="YouTube" style="width: 24px; height: 24px;" />
+        </a>
+
+        <!-- Twitter -->
+        <a href="#" target="_blank">
+            <img src="images/TWITER.png" alt="Twitter" style="width: 24px; height: 24px;" />
+        </a>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+        &copy; 2025 Boliviana de Aviación - Todos los derechos reservados
+    </div>
+</footer>
+<!-- -------------------------- SECCIÓN DE IMAGEN AL FINAL -------------------------- -->
+<div style="text-align: center; margin-top: 20px;">
+    <img src="images/BOLIVIA.webp" alt="Imagen de Bolivia" style="width: 120%; max-width: 120px; height: auto;" />
+</div>
+
+@code {
+    private List<Vuelo> vuelos = new();
+    private int? p_idaeropuertoorigen;
+    private int? p_idaeropuertodestino;
+    private string? p_fechasalida;
+    private string? p_fechallegada;
+    private string p_ciudadorigen;
+    private string p_ciudaddestino;
+    private List<string> aeropuertos = new(); // Lista de strings para los nombres de los aeropuertos
+
+    [Inject]
+    private Supabase.Client SupabaseClient { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Llamar a la función RPC para obtener los nombres de los aeropuertos
+            var response = await SupabaseClient
+                .Rpc("obtener_nombres_aeropuertos", null);
+
+            if (response.Content != null)
+            {
+                var aeropuertosObtenidos = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(response.Content);
+                if (aeropuertosObtenidos != null && aeropuertosObtenidos.Count > 0)
+                {
+                    this.aeropuertos = aeropuertosObtenidos.Select(a => a["nombre_aeropuerto"]).ToList();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al obtener aeropuertos: {ex.Message}");
+        }
+    }
+
+    private async Task ObtenerIdAeropuerto(string ciudad, bool esOrigen)
+    {
+        Console.WriteLine($"Llamada a ObtenerIdAeropuerto con ciudad: {ciudad}"); // Verificar si se llama
+
+        if (string.IsNullOrEmpty(ciudad))
+        {
+            Console.WriteLine("El valor de la ciudad está vacío.");
+            return;
+        }
+
+        try
+        {
+            // Llamada al RPC para obtener el ID del aeropuerto
+            var idAeropuerto = await SupabaseClient
+                .Rpc<int>("obtener_id_por_ciudad", new Dictionary<string, object> { { "ciudad_input", ciudad } });
+
+            // Mostrar la respuesta recibida
+            Console.WriteLine($"Respuesta recibida para la ciudad {ciudad}: ID del aeropuerto = {idAeropuerto}");
+
+            // Asignar el ID dependiendo de si es origen o destino
+            if (esOrigen)
+            {
+                p_idaeropuertoorigen = idAeropuerto;
+                Console.WriteLine($"ID de aeropuerto de origen actualizado: {p_idaeropuertoorigen}");
+            }
+            else
+            {
+                p_idaeropuertodestino = idAeropuerto;
+                Console.WriteLine($"ID de aeropuerto de destino actualizado: {p_idaeropuertodestino}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al obtener el ID del aeropuerto: {ex.Message}");
+        }
+    }
+
+    private async Task BuscarVuelos()
+    {
+        // Verificar si se han seleccionado ambos aeropuertos (origen y destino)
+        if (p_idaeropuertoorigen == null || p_idaeropuertodestino == null || p_fechasalida == null)
+        {
+            Console.WriteLine("Faltan parámetros para realizar la búsqueda.");
+            return;
+        }
+
+        try
+        {
+            // Llamar a la función RPC para obtener los vuelos según los parámetros
+            Console.WriteLine($"Origen: {p_idaeropuertoorigen}, Destino: {p_idaeropuertodestino}, Fecha salida: {p_fechasalida}, Fecha llegada: {p_fechallegada}");
+
+            var response = await SupabaseClient
+                .Rpc("buscar_vuelos", new Dictionary<string, object>
+                    {
+                { "p_idaeropuertoorigen", p_idaeropuertoorigen },
+                { "p_idaeropuertodestino", p_idaeropuertodestino },
+                { "p_fechasalida", p_fechasalida},
+                { "p_fechallegada", p_fechallegada}
+                    });
+
+            // Verificar si la respuesta contiene datos
+            if (response.Content != null)
+            {
+                var vuelosRecibidos = JsonSerializer.Deserialize<List<Vuelo>>(response.Content);
+
+                // Mostrar la respuesta recibida
+                Console.WriteLine($"Vuelos encontrados: {response.Content}");
+
+                // Asignar los vuelos obtenidos a la lista
+                vuelos = vuelosRecibidos ?? new List<Vuelo>();
+            }
+            else
+            {
+                Console.WriteLine("No se encontraron vuelos.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al buscar vuelos: {ex.Message}");
+        }
+    }
+
+
+    // Funciones para actualizar los IDs de origen y destino
+    private async Task ActualizarIdOrigen(ChangeEventArgs e)
+    {
+        p_ciudadorigen = e.Value.ToString();
+        Console.WriteLine($"Actualizando ID de aeropuerto de origen para la ciudad: {p_ciudadorigen}");
+        await ObtenerIdAeropuerto(p_ciudadorigen, true);
+    }
+
+    private async Task ActualizarIdDestino(ChangeEventArgs e)
+    {
+        p_ciudaddestino = e.Value.ToString();
+        Console.WriteLine($"Actualizando ID de aeropuerto de destino para la ciudad: {p_ciudaddestino}");
+        await ObtenerIdAeropuerto(p_ciudaddestino, false);
+    }
+
+    // Función para mostrar las selecciones actuales de los selects
+    private async Task MostrarSeleccion()
+    {
+        Console.WriteLine($"Origen seleccionado: {p_ciudadorigen}");
+        Console.WriteLine($"Destino seleccionado: {p_ciudaddestino}");
+        
+        // Validar la función obtener_id_por_ciudad para Origen
+        if (!string.IsNullOrEmpty(p_ciudadorigen))
+        {
+            Console.WriteLine($"Validando ID de aeropuerto para Origen: {p_ciudadorigen}");
+            await ObtenerIdAeropuerto(p_ciudadorigen, true);
+        }
+
+        // Validar la función obtener_id_por_ciudad para Destino
+        if (!string.IsNullOrEmpty(p_ciudaddestino))
+        {
+            Console.WriteLine($"Validando ID de aeropuerto para Destino: {p_ciudaddestino}");
+            await ObtenerIdAeropuerto(p_ciudaddestino, false);
+        }
+    }
+
+    public class Vuelo : Supabase.Postgrest.Models.BaseModel
+    {
+        public long idvuelo { get; set; }
+        public long idaeropuertoorigen { get; set; }
+        public long idaeropuertodestino { get; set; }
+        public string fechasalida { get; set; }
+        public string fechallegada { get; set; }
+        public decimal precio { get; set; }
+  
+    }
+}
+

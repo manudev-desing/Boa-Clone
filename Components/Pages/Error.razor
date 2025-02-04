@@ -1,0 +1,83 @@
+﻿@page "/error"
+@using Supabase
+@using Supabase.Postgrest
+@inject Supabase.Client SupabaseClient
+
+<PageTitle>Test Connection</PageTitle>
+
+<h3>Test Connection</h3>
+
+<button @onclick="TestConnection">Test Connection</button>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">Error: @errorMessage</p>
+}
+else if (aeropuertos != null && aeropuertos.Any())
+{
+    <p>Connection successful! Aeropuertos count: @aeropuertos.Count</p>
+    <ul>
+        @foreach (var aeropuerto in aeropuertos)
+        {
+            <li>@aeropuerto.Ciudad - @aeropuerto.Pais</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Aeropuerto> aeropuertos;
+    private bool isLoading = false;
+    private string errorMessage;
+
+    private async Task TestConnection()
+    {
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            // Verifica que la consulta sea exitosa y tiene datos
+            Console.WriteLine("Attempting connection...");
+
+            // Realiza la consulta a la base de datos
+            var response = await SupabaseClient
+                .From<Aeropuerto>()
+                .Select("*")
+                .Get();
+
+            // Verificar si hay registros
+            if (response.Models.Any())
+            {
+                aeropuertos = response.Models.ToList();
+                Console.WriteLine($"Found {aeropuertos.Count} records."); // Log para mostrar el número de registros
+            }
+            else
+            {
+                errorMessage = "No records found in the database.";
+                Console.WriteLine("No records found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Detalles del error si ocurre una excepción
+            errorMessage = $"Error: {ex.Message} - Stack: {ex.StackTrace}";
+            Console.WriteLine($"Error occurred: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    public class Aeropuerto : Supabase.Postgrest.Models.BaseModel
+    {
+        public long IdAeropuerto { get; set; }
+        public string Codigo { get; set; }
+        public string Ciudad { get; set; }
+        public string Pais { get; set; }
+    }
+}
